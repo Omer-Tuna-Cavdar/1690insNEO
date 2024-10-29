@@ -8,12 +8,15 @@ import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.ctre.phoenix6.hardware.CANcoder;
-
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.HelperMerhodes.HelperMethodes;
+
+
+
 
 public class Pivot extends SubsystemBase {
     private static Pivot instance;
@@ -24,24 +27,19 @@ public class Pivot extends SubsystemBase {
     private final CANcoder pivotCANCoder;
     private final SparkPIDController pidController;
     private final RelativeEncoder pivotEncoder;
-
     private double holdPosition;  // Target position to hold
-
     public Pivot() {
         pivotMotor1 = new CANSparkMax(Constants.PivotConstants.kPivotMotor1CanId, MotorType.kBrushless);
         pivotMotor2 = new CANSparkMax(Constants.PivotConstants.kPivotMotor2CanId, MotorType.kBrushless);
         pivotCANCoder = new CANcoder(Constants.PivotConstants.kPivotCANCoderId);
         irBeamBreak = new DigitalInput(Constants.PivotConstants.kPivotIrBeamBreakPort);
-
         // Configure motors
         pivotMotor1.restoreFactoryDefaults();
         pivotMotor2.restoreFactoryDefaults();
         pivotMotor1.setIdleMode(IdleMode.kBrake);
         pivotMotor2.setIdleMode(IdleMode.kBrake);
-
         // Set pivotMotor2 to follow pivotMotor1
         pivotMotor2.follow(pivotMotor1, true); // true for inverted
-
         // PID Controller setup for pivotMotor1
         pidController = pivotMotor1.getPIDController();
         pivotEncoder = pivotMotor1.getEncoder();
@@ -68,7 +66,7 @@ public class Pivot extends SubsystemBase {
     }
 
     public double getPosition() {
-        return pivotCANCoder.getAbsolutePosition().getValueAsDouble();
+        return HelperMethodes.CANcoder0_1toDegrees(pivotCANCoder.getAbsolutePosition().getValueAsDouble());
     }
 
     public boolean isAtPositionSetpoint(double position) {
@@ -77,6 +75,7 @@ public class Pivot extends SubsystemBase {
 
     // Commands
     public Command rotateToPosition(double position) {
+        this.setPosition(position);
         return this.run(() -> setPosition(position)).until(() -> isAtPositionSetpoint(position));
     }
 

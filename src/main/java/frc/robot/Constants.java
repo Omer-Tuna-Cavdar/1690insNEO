@@ -92,6 +92,7 @@ public static final class PivotConstants {
         public static final double kD = 0;
         public static final double kFF = 0;
         public static final double kMinOutput = -0.7;
+        public static final double kConversionFactor = 360.0 / 4096.0;
         public static double kMaxOutput = 0.7;
    
     }

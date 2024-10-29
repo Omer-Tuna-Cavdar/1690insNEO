@@ -11,14 +11,14 @@ public class Pivotto30Deg extends Command {
 
     public Pivotto30Deg(Pivot pivot) {
         this.pivot = pivot;
-        this.targetPosition = HelperMethodes.degreesToPosition(30, Constants.PivotConstants.gearReduction); // Convert 30 degrees to position units
+        this.targetPosition = 30; // Convert 30 degrees to position units
         addRequirements(pivot); // Declare subsystem dependencies
     }
 
     @Override
     public void initialize() {
         // Start by setting the target position to 30 degrees
-        pivot.setPosition(targetPosition);
+        pivot.rotateToPosition(targetPosition);
     }
 
     @Override

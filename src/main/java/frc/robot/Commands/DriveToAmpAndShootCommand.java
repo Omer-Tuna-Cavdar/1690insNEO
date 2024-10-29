@@ -48,7 +48,7 @@ public class DriveToAmpAndShootCommand extends Command {
             shooter.runShooter(Constants.ShooterConstans.SHOOTER_RPM_FORAMP); // Example slow RPM
             isShooterRunning = true;
             // Set pivot to 90 degrees
-            pivot.setPosition(90.0);
+            pivot.rotateToPosition(90.0);
         }
     }
 
@@ -64,7 +64,7 @@ public class DriveToAmpAndShootCommand extends Command {
             shooter.runShooter(Constants.ShooterConstans.SHOOTER_RPM_FORAMP);; // Example slow RPM
                 isShooterRunning = true;
                 // Set pivot to 90 degrees
-                pivot.setPosition(90.0);
+                pivot.rotateToPosition(90.0);
             } else {
                 // Rotate in place or perform a search pattern if amp is not detected
                 swerveSubsystem.drive(

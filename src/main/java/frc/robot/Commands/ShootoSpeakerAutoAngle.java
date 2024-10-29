@@ -139,8 +139,8 @@ public class ShootoSpeakerAutoAngle extends Command {
     private void handleAdjustingPivot() {
         // Set the target position based on the Limelight's vertical offset (ty)
         double ty = vision.getTY("Speaker");
-        targetPosition = HelperMethodes.degreesToPosition(ty, Constants.PivotConstants.gearReduction);
-        pivot.setPosition(targetPosition);
+        targetPosition = ty;
+        pivot.rotateToPosition(targetPosition);
 
         // Reset the pivot encoder if the beam break sensor is triggered
         if (pivot.isPivotBeamBroken()) {
