@@ -65,8 +65,8 @@ public class RobotContainer
             () -> MathUtil.applyDeadband(driverController.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
             () -> MathUtil.applyDeadband(driverController.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
             () -> MathUtil.applyDeadband(driverController.getRightX(), OperatorConstants.RIGHT_X_DEADBAND));
-    Command ShootoSpeakerAutoAngle  = new ShootoSpeakerAutoAngle(Constants.Subsytems.pivot, Constants.Subsytems.vision, Constants.Subsytems.shooter, Constants.Subsytems.intake, Constants.Subsytems.SWERVE_SUBSYSTEM);
-    Command DriveToAmpAndShootCommand = new DriveToAmpAndShootCommand(Constants.Subsytems.SWERVE_SUBSYSTEM, Constants.Subsytems.vision, Constants.Subsytems.shooter, Constants.Subsytems.pivot, Constants.Subsytems.intake);
+    Command ShootoSpeakerAutoAngle  = new ShootoSpeakerAutoAngleCommandGroup(Constants.Subsytems.pivot, Constants.Subsytems.vision, Constants.Subsytems.shooter, Constants.Subsytems.intake, Constants.Subsytems.SWERVE_SUBSYSTEM);
+    Command DriveToAmpAndShootCommand = new DriveToAmpAndShootCommandGroup(Constants.Subsytems.SWERVE_SUBSYSTEM, Constants.Subsytems.vision, Constants.Subsytems.shooter, Constants.Subsytems.pivot, Constants.Subsytems.intake);
     Command IntakeNote = new IntakeNote(Constants.Subsytems.intake);
     private final Notifier intakeNotifier = new Notifier(() -> IntakeNote.schedule());
     /**

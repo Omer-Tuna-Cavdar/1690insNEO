@@ -1,9 +1,6 @@
 package frc.robot.Commands;
-
-import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
-import frc.robot.HelperMerhodes.HelperMethodes;
 import frc.robot.Subsytems.Intake;
 
 public class IntakeNote extends Command {

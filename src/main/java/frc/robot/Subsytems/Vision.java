@@ -5,9 +5,10 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.Constants;
-import frc.robot.LimelightHelpers;
-import frc.robot.LimelightHelpers.LimelightResults;
-import frc.robot.LimelightHelpers.LimelightTarget_Fiducial;
+import frc.robot.HelperMerhodes.LimelightHelpers;
+import frc.robot.HelperMerhodes.LimelightHelpers.LimelightResults;
+import frc.robot.HelperMerhodes.LimelightHelpers.LimelightTarget_Fiducial;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,11 +36,13 @@ public class Vision extends SubsystemBase {
         double distance;
         double tx;
         double ty;
+        Pose2d targetPose;
 
-        VisionData(double distance, double tx, double ty) {
+        VisionData(double distance, double tx, double ty, Pose2d targetPose) {
             this.distance = distance;
             this.tx = tx;
             this.ty = ty;
+            this.targetPose = targetPose;
         }
     }
 
@@ -48,77 +51,19 @@ public class Vision extends SubsystemBase {
 
     public Vision(String limelightName) {
         this.limelightName = limelightName;
-        this.alliance = DriverStation.getAlliance().orElse(Alliance.Blue); // Get alliance color at startup
+        this.alliance = DriverStation.getAlliance().get(); // Get alliance color at startup
     }
 
     /**
-     * Retrieves the Pose2d of the amp target based on AprilTag detection.
+     * Retrieves the Pose2d of the specified target based on AprilTag detection.
      *
-     * @return Pose2d of the amp relative to the robot, or null if not detected.
+     * @param targetType The type of target (e.g., "Amp", "Speaker", "Source").
+     * @return Pose2d of the target relative to the robot, or null if not detected.
      */
-    public Pose2d getAmpPose() {
-        LimelightResults results = LimelightHelpers.getLatestResults(limelightName);
-
-        if (results == null || results.targets_Fiducials == null || results.targets_Fiducials.length == 0) {
-            System.out.println("[Vision] No fiducials detected.");
-            return null;
-        }
-
-        // Determine the Amp's AprilTag ID based on alliance
-        int[] ampTagIDs = getAmpTagIDs();
-
-        // Since there's only one amp per alliance, find the first matching fiducial
-        LimelightTarget_Fiducial ampTarget = Arrays.stream(results.targets_Fiducials)
-            .filter(target -> Arrays.stream(ampTagIDs).anyMatch(id -> id == (int) target.fiducialID))
-            .findFirst()
-            .orElse(null);
-
-        if (ampTarget == null) {
-            System.out.println("[Vision] Amp fiducial not detected.");
-            return null;
-        }
-
-        // Retrieve the robot pose relative to the amp target as Pose2d
-        Pose2d ampPose = ampTarget.getRobotPose_TargetSpace2D();
-
-        System.out.println("[Vision] Amp pose acquired: " + ampPose);
-        return ampPose;
-    }
-
-    /**
-     * Determines the Amp's AprilTag IDs based on the current alliance.
-     *
-     * @return Array of Amp AprilTag IDs.
-     */
-    private int[] getAmpTagIDs() {
-        return getAllianceSpecificTagIDs("Amp");
-    }
-
-    /**
-     * Calculates the distance to the target based on the height difference and the vertical angle.
-     *
-     * @param h  The height difference between the target and the AprilTag.
-     * @param ty The vertical angle to the target from the Limelight.
-     * @return The calculated distance in meters.
-     */
-    private double calculateDistance(double h, double ty) {
-        // Convert angles from degrees to radians for calculation
-        double cameraAngleRadians = Math.toRadians(CAMERA_MOUNTING_ANGLE_DEGREES);
-        double tyRadians = Math.toRadians(ty);
-
-        // Total angle from the horizontal
-        double totalAngle = cameraAngleRadians + tyRadians;
-
-        // Prevent division by zero
-        double tanTotalAngle = Math.tan(totalAngle);
-        if (tanTotalAngle == 0) {
-            System.out.println("[Vision] Warning: Total angle leads to division by zero.");
-            return -1.0;
-        }
-
-        // Calculate distance using trigonometry
-        double distance = h / tanTotalAngle;
-        return distance;
+    public Pose2d getTargetPose(String targetType) {
+        ensureDataCached(targetType);
+        VisionData data = visionDataCache.get(targetType);
+        return (data != null) ? data.targetPose : null;
     }
 
     /**
@@ -131,19 +76,20 @@ public class Vision extends SubsystemBase {
         double tagHeight = getTagHeight(targetType);
 
         double h = targetHeight - tagHeight; // Height difference
-        double[] distanceAndOffsets = getDistanceAndOffsets(targetType); // Get alliance-specific data
-        double distance = distanceAndOffsets[0];
-        double tx = distanceAndOffsets[1];
-        double ty = distanceAndOffsets[2];
+        TargetDetectionResult detectionResult = getDetectionResult(targetType); // Get detection data
+        double distance = detectionResult.distance;
+        double tx = detectionResult.tx;
+        double ty = detectionResult.ty;
+        Pose2d targetPose = detectionResult.pose;
 
         if (distance == -1.0) {
             // Indicate invalid data by setting all values to -1.0
-            visionDataCache.put(targetType, new VisionData(-1.0, -1.0, -1.0));
+            visionDataCache.put(targetType, new VisionData(-1.0, -1.0, -1.0, null));
         } else {
             // Adjust tx and ty if needed
             double adjustedTX = calculateTXAdjustment(distance, h);
             double adjustedTY = calculateTYAdjustment(distance, h);
-            visionDataCache.put(targetType, new VisionData(distance, adjustedTX, adjustedTY));
+            visionDataCache.put(targetType, new VisionData(distance, adjustedTX, adjustedTY, targetPose));
         }
     }
 
@@ -227,19 +173,20 @@ public class Vision extends SubsystemBase {
     }
 
     /**
-     * Retrieves alliance-specific distance and offsets (tx, ty) from detected AprilTags.
+     * Retrieves detection data including distance, offsets, and pose from detected AprilTags.
      */
-    private double[] getDistanceAndOffsets(String targetType) {
+    private TargetDetectionResult getDetectionResult(String targetType) {
         LimelightResults results = LimelightHelpers.getLatestResults(limelightName);
 
         if (results == null || results.targets_Fiducials == null || results.targets_Fiducials.length == 0) {
             System.out.println("[Vision] Warning: No targets detected.");
-            return new double[] { -1.0, -1.0, -1.0 };
+            return new TargetDetectionResult(-1.0, -1.0, -1.0, null);
         }
 
         int[] tagIDs = getAllianceSpecificTagIDs(targetType);
         double totalTX = 0.0, totalTY = 0.0;
         int detectedTags = 0;
+        Pose2d targetPose = null;
 
         for (LimelightTarget_Fiducial target : results.targets_Fiducials) {
             int fiducialID = (int) target.fiducialID;
@@ -248,6 +195,11 @@ public class Vision extends SubsystemBase {
                 totalTX += target.tx;
                 totalTY += target.ty;
                 detectedTags++;
+
+                // For simplicity, use the first detected target's pose
+                if (targetPose == null) {
+                    targetPose = target.getRobotPose_TargetSpace2D();
+                }
             }
         }
 
@@ -260,10 +212,10 @@ public class Vision extends SubsystemBase {
             double h = targetHeight - tagHeight;
 
             double distance = calculateDistance(h, avgTY);
-            return new double[] { distance, avgTX, avgTY };
+            return new TargetDetectionResult(distance, avgTX, avgTY, targetPose);
         } else {
             System.out.println("[Vision] Warning: Not all tags detected for " + targetType);
-            return new double[] { -1.0, -1.0, -1.0 };
+            return new TargetDetectionResult(-1.0, -1.0, -1.0, null);
         }
     }
 
@@ -331,16 +283,40 @@ public class Vision extends SubsystemBase {
         return LimelightHelpers.getLatency_Pipeline(limelightName);
     }
 
-   
     /**
-     * Example usage: Get the amp pose and print it.
+     * Helper class to hold detection results.
      */
-    public void printAmpPose() {
-        Pose2d ampPose = getAmpPose();
-        if (ampPose != null) {
-            System.out.println("[Vision] Amp Pose: " + ampPose);
-        } else {
-            System.out.println("[Vision] Amp Pose not detected.");
+    private static class TargetDetectionResult {
+        double distance;
+        double tx;
+        double ty;
+        Pose2d pose;
+
+        TargetDetectionResult(double distance, double tx, double ty, Pose2d pose) {
+            this.distance = distance;
+            this.tx = tx;
+            this.ty = ty;
+            this.pose = pose;
         }
     }
+    private double calculateDistance(double h, double ty) {
+        // Convert angles from degrees to radians for calculation
+        double cameraAngleRadians = Math.toRadians(CAMERA_MOUNTING_ANGLE_DEGREES);
+        double tyRadians = Math.toRadians(ty);
+
+        // Total angle from the horizontal
+        double totalAngle = cameraAngleRadians + tyRadians;
+
+        // Prevent division by zero
+        double tanTotalAngle = Math.tan(totalAngle);
+        if (tanTotalAngle == 0) {
+            System.out.println("[Vision] Warning: Total angle leads to division by zero.");
+            return -1.0;
+        }
+
+        // Calculate distance using trigonometry
+        double distance = h / tanTotalAngle;
+        return distance;
+    }
+
 }

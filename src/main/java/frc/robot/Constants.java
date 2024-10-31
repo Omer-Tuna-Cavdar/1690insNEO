@@ -48,6 +48,7 @@ public final class Constants
     public static final int kShooterRId= 32;
     public static final double SHOOTER_RPM_Scailing_Per_Meter = 0;
 	public static final double SHOOTER_RPM_FORAMP = 100;
+    public static final double FEED_DURATION_SECONDS = 0;
   }
   public static final class DrivebaseConstants
   {
