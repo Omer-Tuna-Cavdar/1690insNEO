@@ -8,7 +8,7 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.903943601397527,
+        "x": 2.334557217438142,
         "y": 5.569729133558561
       },
       "isLocked": false,
@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 1.2330248613299577,
-        "y": 5.569729133558561
+        "x": 1.70278836010564,
+        "y": 5.548709009386006
       },
       "prevControl": {
-        "x": 0.23302486132995792,
-        "y": 5.569729133558561
+        "x": 2.2804126801414752,
+        "y": 5.548709009386006
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "ShootPos"
+      "linkedName": "ShootPosition"
     }
   ],
   "rotationTargets": [],
@@ -33,7 +33,7 @@
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 4.0,
-    "maxAcceleration": 8.0,
+    "maxAcceleration": 4.0,
     "maxAngularVelocity": 500.0,
     "maxAngularAcceleration": 1500.0
   },

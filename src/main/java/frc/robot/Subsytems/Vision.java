@@ -5,9 +5,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.Constants;
-import frc.robot.HelperMerhodes.LimelightHelpers;
-import frc.robot.HelperMerhodes.LimelightHelpers.LimelightResults;
-import frc.robot.HelperMerhodes.LimelightHelpers.LimelightTarget_Fiducial;
+import frc.robot.HelperMethodes.LimelightHelpers;
+import frc.robot.HelperMethodes.LimelightHelpers.LimelightResults;
+import frc.robot.HelperMethodes.LimelightHelpers.LimelightTarget_Fiducial;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -51,7 +51,7 @@ public class Vision extends SubsystemBase {
 
     public Vision(String limelightName) {
         this.limelightName = limelightName;
-        this.alliance = DriverStation.getAlliance().get(); // Get alliance color at startup
+        this.alliance = DriverStation.getAlliance().orElse(Alliance.Blue); // Provide a default alliance
     }
 
     /**
@@ -214,7 +214,7 @@ public class Vision extends SubsystemBase {
             double distance = calculateDistance(h, avgTY);
             return new TargetDetectionResult(distance, avgTX, avgTY, targetPose);
         } else {
-            System.out.println("[Vision] Warning: Not all tags detected for " + targetType);
+            System.out.println("[Vision] Warning: No matching tags detected for " + targetType);
             return new TargetDetectionResult(-1.0, -1.0, -1.0, null);
         }
     }
@@ -263,6 +263,33 @@ public class Vision extends SubsystemBase {
     }
 
     /**
+     * Calculates the distance to the target based on the height difference and the vertical angle.
+     *
+     * @param h  The height difference between the camera and the target (in meters).
+     * @param ty The vertical angle to the target from the Limelight (in degrees).
+     * @return The calculated distance in meters, or -1.0 if the calculation is invalid.
+     */
+    private double calculateDistance(double h, double ty) {
+        // Convert angles from degrees to radians for calculation
+        double cameraAngleRadians = Math.toRadians(CAMERA_MOUNTING_ANGLE_DEGREES);
+        double tyRadians = Math.toRadians(ty);
+
+        // Total angle from the horizontal
+        double totalAngle = cameraAngleRadians + tyRadians;
+
+        // Prevent division by zero
+        double tanTotalAngle = Math.tan(totalAngle);
+        if (tanTotalAngle == 0) {
+            System.out.println("[Vision] Warning: Total angle leads to division by zero.");
+            return -1.0;
+        }
+
+        // Calculate distance using trigonometry
+        double distance = h / tanTotalAngle;
+        return distance;
+    }
+
+    /**
      * Clears the vision data cache periodically to ensure fresh calculations.
      */
     @Override
@@ -299,24 +326,4 @@ public class Vision extends SubsystemBase {
             this.pose = pose;
         }
     }
-    private double calculateDistance(double h, double ty) {
-        // Convert angles from degrees to radians for calculation
-        double cameraAngleRadians = Math.toRadians(CAMERA_MOUNTING_ANGLE_DEGREES);
-        double tyRadians = Math.toRadians(ty);
-
-        // Total angle from the horizontal
-        double totalAngle = cameraAngleRadians + tyRadians;
-
-        // Prevent division by zero
-        double tanTotalAngle = Math.tan(totalAngle);
-        if (tanTotalAngle == 0) {
-            System.out.println("[Vision] Warning: Total angle leads to division by zero.");
-            return -1.0;
-        }
-
-        // Calculate distance using trigonometry
-        double distance = h / tanTotalAngle;
-        return distance;
-    }
-
 }
