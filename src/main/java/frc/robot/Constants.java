@@ -32,8 +32,8 @@ public final class Constants
     public static final int kIntakeIrBeamBreakPort = 1;
     public static final int kShooterRId = 41;
     public static final boolean INTAKE_ROLLER_INVERTED = false;
-    public static final double Intake_Roller_Speed = 0;
-    public static final double Intake_Roller_Speed_ForAmp = 0;
+    public static final double Intake_Roller_Speed = 0.7;
+    public static final double Intake_Roller_Speed_ForAmp = 0.7;
   
     
   }
@@ -43,12 +43,12 @@ public final class Constants
     public static final double kShooterD = 0.0;
     public static final double kShooterPositionTolerance = 3.0;
     public static final double kShooterVelocityTolerance = 3.0;
-    public static final double SHOOTER_TARGET_RPM = 8000.0;
+    public static final double SHOOTER_TARGET_RPM = 4000.0;
     public static final int kShooterLId = 31;
     public static final int kShooterRId= 32;
-    public static final double SHOOTER_RPM_Scailing_Per_Meter = 0;
+    public static final double SHOOTER_RPM_Scailing_Per_Meter = 2000;
 	public static final double SHOOTER_RPM_FORAMP = 100;
-    public static final double FEED_DURATION_SECONDS = 0;
+    public static final double FEED_DURATION_SECONDS = 0.5;
   }
   public static final class DrivebaseConstants
   {

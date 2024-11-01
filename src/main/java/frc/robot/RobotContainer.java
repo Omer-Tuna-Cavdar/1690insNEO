@@ -1,5 +1,7 @@
 package frc.robot;
 
+import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Notifier;
@@ -76,6 +78,9 @@ public class RobotContainer
     {
         intakeNotifier.startPeriodic(0.0005);  // 0.5 ms interval same as the beam break sensor
         configureBindings();    
+        NamedCommands.registerCommand("ShootNote", ShootoSpeakerAutoAngle);
+        NamedCommands.registerCommand("IntakeNote", IntakeNote);
+
     }
 
     /**

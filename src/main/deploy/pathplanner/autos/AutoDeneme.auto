@@ -12,9 +12,21 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "ShootNote"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootNote"
           }
         },
         {
@@ -24,9 +36,21 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "ShootNote"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "IntakeNote"
           }
         },
         {
@@ -36,15 +60,33 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "ShootNote"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "5"
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "IntakeNote"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "6"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootNote"
           }
         }
       ]
